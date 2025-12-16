@@ -275,3 +275,17 @@ externalCheckers:
     disabledRules:
       - passive-voice-excessive  # Academic writing often uses passive
       - latin-abbreviations      # Common in academic writing
+
+  # AI content detection (LLM-powered)
+  aiDetection:
+    enabled: true
+    # Default provider: 'openai' or 'anthropic'
+    defaultProvider: "anthropic"
+    # Minimum word count for detection
+    minWords: 50
+    # Thresholds for classification
+    thresholds:
+      likelyAI: 80      # AI score >= this = "Likely AI"
+      possiblyAI: 60    # AI score >= this = "Possibly AI"
+      likelyHuman: 80   # Human score >= this = "Likely Human"
+      minConfidence: 30 # Below this = "Inconclusive"

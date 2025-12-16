@@ -58,9 +58,22 @@ export interface AcademicLinterConfig {
   disabledRules: string[]
 }
 
+export interface AIDetectionConfig {
+  enabled: boolean
+  defaultProvider: 'openai' | 'anthropic'
+  minWords: number
+  thresholds: {
+    likelyAI: number
+    possiblyAI: number
+    likelyHuman: number
+    minConfidence: number
+  }
+}
+
 export interface ExternalCheckersConfig {
   languageTool: LanguageToolConfig
   academicLinter: AcademicLinterConfig
+  aiDetection?: AIDetectionConfig
 }
 
 export type PatternCategory =

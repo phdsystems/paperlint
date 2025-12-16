@@ -3,6 +3,7 @@ import type { Section, SectionType, Issue } from '../types'
 import { analyzeText, analyzeAbstract, analyzeReferences, TextAnalysisResult, config } from '../lib/text-analysis'
 import { checkWithLanguageTool } from '../lib/language-tool'
 import { lintAcademicText, LintResult } from '../lib/academic-linter'
+import { AIDetection } from './AIDetection'
 import { Card, CardContent } from './ui/Card'
 import { Badge } from './ui/Badge'
 import { Progress } from './ui/Progress'
@@ -426,6 +427,11 @@ export function TextAnalysis({ section, fullPaperContent, onAddIssues }: TextAna
           </svg>
           <p className="text-sm">No issues detected</p>
         </div>
+      )}
+
+      {/* AI Content Detection */}
+      {config.externalCheckers?.aiDetection?.enabled !== false && (
+        <AIDetection text={section.content} sectionName={section.name} />
       )}
     </div>
   )
