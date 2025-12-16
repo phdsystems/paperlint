@@ -1,0 +1,277 @@
+# PaperLint - Analysis Configuration
+# All scoring thresholds, patterns, and limits are configurable here
+
+# Word count limits by section
+wordLimits:
+  abstract:
+    min: 150
+    max: 300
+  title:
+    min: 8
+    max: 15
+  introduction:
+    min: 500
+    max: 1500
+  conclusion:
+    min: 200
+    max: 500
+
+# Readability thresholds
+readability:
+  fleschReadingEase:
+    easy: 60      # >= this is "Easy"
+    moderate: 30  # >= this is "Moderate", below is "Difficult"
+  sentenceLength:
+    warning: 25   # avg words per sentence triggers warning
+    error: 30     # avg words per sentence triggers error
+  passiveVoice:
+    warning: 30   # percentage threshold
+
+# Scoring weights (for overall score calculation)
+scoring:
+  sectionWeights:
+    title: 0.5
+    abstract: 1.0
+    introduction: 1.0
+    related-work: 0.8
+    methodology: 1.2
+    results: 1.2
+    discussion: 1.0
+    threats-to-validity: 0.8
+    conclusion: 0.8
+    references: 0.7
+    formatting: 0.6
+
+# Issue severity levels
+severity:
+  mustFix:
+    label: "Must Fix"
+    color: "red"
+    weight: 3
+  shouldFix:
+    label: "Should Fix"
+    color: "yellow"
+    weight: 2
+  consider:
+    label: "Consider"
+    color: "blue"
+    weight: 1
+
+# Grade thresholds (percentage-based)
+grades:
+  A: 90
+  B: 80
+  C: 70
+  D: 60
+  F: 0
+
+# Pattern category severities (configurable)
+# Options: must-fix, should-fix, consider
+patternSeverity:
+  contractions: should-fix      # was must-fix, aligned with guide
+  informalLanguage: should-fix
+  overclaiming: should-fix
+  weakHedging: consider
+  firstPersonSingular: consider
+  passiveVoice: consider
+  lowReadability: consider
+  longSentences: consider
+  wordCountViolation: should-fix
+  abstractCitations: must-fix    # fundamental issue
+  undefinedAbbreviations: should-fix
+  missingQuantifiedResults: should-fix
+  orphanReferences: should-fix
+  missingReferences: must-fix    # fundamental issue
+
+# Informal language patterns
+informalPatterns:
+  - pattern: "\\bvery\\b"
+    suggestion: "Remove or use 'highly', 'significantly'"
+  - pattern: "\\breally\\b"
+    suggestion: "Remove or use 'substantially'"
+  - pattern: "\\ba lot\\b"
+    suggestion: "Use 'many', 'numerous', 'substantially'"
+  - pattern: "\\bkind of\\b"
+    suggestion: "Use 'somewhat', 'partially'"
+  - pattern: "\\bsort of\\b"
+    suggestion: "Use 'somewhat', 'partially'"
+  - pattern: "\\bstuff\\b"
+    suggestion: "Use specific terminology"
+  - pattern: "\\bthings\\b"
+    suggestion: "Use specific terminology"
+  - pattern: "\\bgot\\b"
+    suggestion: "Use 'obtained', 'received', 'became'"
+  - pattern: "\\bget\\b"
+    suggestion: "Use 'obtain', 'receive', 'become'"
+  - pattern: "\\bbig\\b"
+    suggestion: "Use 'large', 'significant', 'substantial'"
+  - pattern: "\\blittle\\b"
+    suggestion: "Use 'small', 'minor', 'limited'"
+  - pattern: "\\bgood\\b"
+    suggestion: "Use 'effective', 'beneficial', 'favorable'"
+  - pattern: "\\bbad\\b"
+    suggestion: "Use 'adverse', 'unfavorable', 'detrimental'"
+  - pattern: "\\bnice\\b"
+    suggestion: "Use 'favorable', 'appropriate', 'suitable'"
+  - pattern: "\\bokay\\b"
+    suggestion: "Use 'acceptable', 'satisfactory'"
+  - pattern: "\\bok\\b"
+    suggestion: "Use 'acceptable', 'satisfactory'"
+  - pattern: "\\bawesome\\b"
+    suggestion: "Use 'remarkable', 'notable'"
+  - pattern: "\\bamazing\\b"
+    suggestion: "Use 'remarkable', 'noteworthy'"
+  - pattern: "\\bbasically\\b"
+    suggestion: "Remove or rephrase"
+  - pattern: "\\bactually\\b"
+    suggestion: "Remove or rephrase"
+  - pattern: "\\bobviously\\b"
+    suggestion: "Remove - let evidence speak"
+  - pattern: "\\bclearly\\b"
+    suggestion: "Remove - let evidence speak"
+  - pattern: "\\bof course\\b"
+    suggestion: "Remove - avoid assuming reader knowledge"
+  - pattern: "\\beverybody knows\\b"
+    suggestion: "Remove - cite source instead"
+  - pattern: "\\bit is known that\\b"
+    suggestion: "Cite specific source"
+
+# Contractions (severity: must-fix)
+contractions:
+  - "can't"
+  - "won't"
+  - "don't"
+  - "doesn't"
+  - "isn't"
+  - "aren't"
+  - "wasn't"
+  - "weren't"
+  - "hasn't"
+  - "haven't"
+  - "hadn't"
+  - "couldn't"
+  - "wouldn't"
+  - "shouldn't"
+  - "it's"
+  - "that's"
+  - "there's"
+  - "what's"
+  - "who's"
+  - "let's"
+  - "we've"
+  - "they've"
+  - "I've"
+  - "you've"
+  - "we're"
+  - "they're"
+  - "you're"
+  - "I'm"
+  - "we'll"
+  - "they'll"
+  - "I'll"
+  - "you'll"
+
+# Weak hedging patterns (severity: consider)
+weakHedging:
+  - pattern: "\\bmaybe\\b"
+    suggestion: "Use 'possibly', 'perhaps', 'may'"
+  - pattern: "\\bprobably\\b"
+    suggestion: "Quantify if possible or use 'likely'"
+  - pattern: "\\bseems like\\b"
+    suggestion: "Use 'appears to', 'suggests'"
+  - pattern: "\\bI think\\b"
+    suggestion: "Use 'we hypothesize', 'evidence suggests'"
+  - pattern: "\\bI believe\\b"
+    suggestion: "Use 'we posit', 'our analysis indicates'"
+  - pattern: "\\bI feel\\b"
+    suggestion: "Use objective language with evidence"
+
+# Overclaiming patterns (severity: should-fix)
+overclaiming:
+  - pattern: "\\bproves?\\b"
+    suggestion: "Use 'demonstrates', 'supports', 'indicates'"
+  - pattern: "\\balways\\b"
+    suggestion: "Use 'typically', 'generally', 'in most cases'"
+  - pattern: "\\bnever\\b"
+    suggestion: "Use 'rarely', 'seldom', 'in few cases'"
+  - pattern: "\\ball\\b"
+    suggestion: "Verify if truly universal or use 'most'"
+  - pattern: "\\bnone\\b"
+    suggestion: "Verify if truly zero or use 'few'"
+  - pattern: "\\bdefinitely\\b"
+    suggestion: "Remove or provide evidence"
+  - pattern: "\\bcertainly\\b"
+    suggestion: "Remove or provide evidence"
+  - pattern: "\\bundoubtedly\\b"
+    suggestion: "Remove or provide evidence"
+  - pattern: "\\bperfect(ly)?\\b"
+    suggestion: "Avoid absolute terms"
+  - pattern: "\\bcompletely\\b"
+    suggestion: "Use 'largely', 'substantially'"
+  - pattern: "\\btotally\\b"
+    suggestion: "Use 'largely', 'substantially'"
+  - pattern: "\\babsolutely\\b"
+    suggestion: "Remove or qualify"
+
+# Citation patterns for auto-detection
+citationPatterns:
+  ieee: "\\[\\d+\\]"
+  apa: "\\([A-Z][a-z]+(?:\\s+(?:&|and)\\s+[A-Z][a-z]+)*,\\s*\\d{4}[a-z]?\\)"
+  harvard: "\\([A-Z][a-z]+(?:\\s+(?:&|and)\\s+[A-Z][a-z]+)*\\s+\\d{4}[a-z]?\\)"
+  acm: "\\[[A-Z][a-z]+\\s*(?:et\\s*al\\.?)?\\s*\\d{4}[a-z]?\\]"
+
+# Abstract-specific validation
+abstractValidation:
+  requireQuantifiedResults: true
+  quantifiedResultsPattern: "\\d+(\\.\\d+)?%|\\d+(\\.\\d+)?\\s*(times|x|percent|ms|seconds|minutes)"
+  forbidCitations: true
+  checkUndefinedAbbreviations: true
+
+# Reference validation
+referenceValidation:
+  checkOrphanReferences: true
+  checkMissingReferences: true
+  requireAccessDates: true
+  accessDateKeywords:
+    - "accessed"
+    - "retrieved"
+    - "visited"
+
+# External checkers configuration
+externalCheckers:
+  # LanguageTool API integration
+  languageTool:
+    enabled: true
+    apiUrl: "https://api.languagetool.org/v2/check"
+    # For self-hosted: "http://localhost:8081/v2/check"
+    language: "en-US"
+    # Categories to include (empty = all)
+    enabledCategories: []
+    # Categories to exclude
+    disabledCategories:
+      - "TYPOGRAPHY"  # Often too pedantic
+
+  # Academic writing linter (browser-based)
+  academicLinter:
+    enabled: true
+    # Available rules:
+    # - weasel-words: Vague quantifiers
+    # - passive-voice-excessive: Too much passive voice
+    # - nominalization: Noun forms that could be verbs
+    # - redundant-phrases: Wordy phrases
+    # - weak-starters: "There is", "It is" etc.
+    # - hedge-clustering: Multiple hedges in one sentence
+    # - latin-abbreviations: e.g., i.e., etc.
+    # - sentence-variety: Monotonous sentence lengths
+    # - repeated-starts: Same sentence beginnings
+    enabledRules:
+      - weasel-words
+      - nominalization
+      - redundant-phrases
+      - weak-starters
+      - hedge-clustering
+      - sentence-variety
+      - repeated-starts
+    disabledRules:
+      - passive-voice-excessive  # Academic writing often uses passive
+      - latin-abbreviations      # Common in academic writing
