@@ -70,10 +70,109 @@ export interface AIDetectionConfig {
   }
 }
 
+export interface StatisticsLinterConfig {
+  enabled: boolean
+  enabledRules: string[]
+  disabledRules: string[]
+}
+
+export interface StatisticsAIConfig {
+  enabled: boolean
+  defaultProvider: 'openai' | 'anthropic'
+  minWords: number
+}
+
+// Statistics configuration types
+export type StudyType = 'experimental' | 'observational' | 'qualitative'
+
+export interface StatisticsPatterns {
+  pValue: Record<string, string>
+  effectSizes: Record<string, string>
+  sampleSize: Record<string, string>
+  confidenceInterval: Record<string, string>
+  tests: Record<string, string>
+  testStatistics: Record<string, string>
+  assumptions: Record<string, string>
+  corrections: Record<string, string>
+  powerAnalysis: Record<string, string>
+  studyDesign: Record<string, string>
+  qualitative: Record<string, string>
+  robustness: Record<string, string>
+}
+
+export interface TestRequirement {
+  dataType: string
+  assumptions: string[]
+  requiredReporting: string[]
+  appropriateFor?: string[]
+  notAppropriateFor?: string[]
+  alternativeTests?: string[]
+  postHoc?: string[]
+  diagnostics?: string[]
+}
+
+export interface EffectSizeThreshold {
+  small: number
+  medium: number
+  large: number
+  description: string
+}
+
+export interface SampleSizeFormula {
+  formula: string
+  description: string
+  parameters?: Record<string, number>
+  minimumRecommended: {
+    small_effect: number
+    medium_effect: number
+    large_effect: number
+  }
+}
+
+export interface StudyDesignCheckItem {
+  id: string
+  label: string
+  patternRef?: string
+  patternRefs?: string[]
+  severity: IssueSeverity
+}
+
+export interface ValidationRuleCondition {
+  matchPattern?: string
+  matchPatterns?: string[]
+  hasAnyPattern?: string[]
+  missingAllPatterns?: string[]
+  type?: 'count-check' | 'sample-size-check'
+  pattern?: string
+  threshold?: number
+  sections?: string[]
+}
+
+export interface ValidationRule {
+  id: string
+  name: string
+  description: string
+  severity: IssueSeverity
+  condition: ValidationRuleCondition
+  suggestion: string
+}
+
+export interface StatisticsConfig {
+  patterns: StatisticsPatterns
+  studyTypeDetection: Record<StudyType, string[]>
+  testRequirements: Record<string, TestRequirement>
+  effectSizeThresholds: Record<string, EffectSizeThreshold>
+  sampleSizeFormulas: Record<string, SampleSizeFormula>
+  studyDesignChecklist: Record<StudyType, StudyDesignCheckItem[]>
+  validationRules: ValidationRule[]
+}
+
 export interface ExternalCheckersConfig {
   languageTool: LanguageToolConfig
   academicLinter: AcademicLinterConfig
   aiDetection?: AIDetectionConfig
+  statisticsLinter?: StatisticsLinterConfig
+  statisticsAI?: StatisticsAIConfig
 }
 
 export type PatternCategory =
@@ -91,6 +190,17 @@ export type PatternCategory =
   | 'missingQuantifiedResults'
   | 'orphanReferences'
   | 'missingReferences'
+  // Statistics-related categories
+  | 'pValueZero'
+  | 'exactPThreshold'
+  | 'missingEffectSize'
+  | 'missingCI'
+  | 'missingSampleSize'
+  | 'multipleComparisons'
+  | 'significanceOnly'
+  | 'missingPowerAnalysis'
+  | 'missingAssumptions'
+  | 'vagueSample'
 
 export interface AnalysisConfig {
   wordLimits: Partial<Record<SectionType, WordLimit>>
@@ -109,4 +219,5 @@ export interface AnalysisConfig {
   abstractValidation: AbstractValidationConfig
   referenceValidation: ReferenceValidationConfig
   externalCheckers?: ExternalCheckersConfig
+  statisticsConfig?: StatisticsConfig
 }

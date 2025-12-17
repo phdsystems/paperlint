@@ -5,7 +5,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit && bun test",
+    "bundle": "vite build",
+    "clean": "rm -rf dist node_modules/.vite"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -22,6 +28,7 @@
     "typescript": "^5.7.2",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
-    "@modyfi/vite-plugin-yaml": "^1.1.0"
+    "@modyfi/vite-plugin-yaml": "^1.1.0",
+    "@types/bun": "latest"
   }
 }

@@ -82,6 +82,17 @@ patternSeverity:
   missingQuantifiedResults: should-fix
   orphanReferences: should-fix
   missingReferences: must-fix    # fundamental issue
+  # Statistics-related severities
+  pValueZero: must-fix           # fundamental reporting error
+  exactPThreshold: consider      # suspicious but not always wrong
+  missingEffectSize: should-fix
+  missingCI: consider
+  missingSampleSize: must-fix    # fundamental issue
+  multipleComparisons: should-fix
+  significanceOnly: should-fix
+  missingPowerAnalysis: consider
+  missingAssumptions: consider
+  vagueSample: should-fix
 
 # Informal language patterns
 informalPatterns:
@@ -289,3 +300,591 @@ externalCheckers:
       possiblyAI: 60    # AI score >= this = "Possibly AI"
       likelyHuman: 80   # Human score >= this = "Likely Human"
       minConfidence: 30 # Below this = "Inconclusive"
+
+  # Statistics linter (pattern-based)
+  statisticsLinter:
+    enabled: true
+    # Available rules:
+    # - p-value-zero: Catch "p = 0.000" errors
+    # - exact-p-threshold: Flag suspicious p = 0.05
+    # - effect-size-missing: Tests without effect sizes
+    # - confidence-interval-missing: Missing CIs
+    # - sample-size-missing: No sample size stated
+    # - multiple-comparisons: Multiple tests without correction
+    # - significance-only: P-values without test statistics
+    # - power-analysis-missing: No power analysis
+    # - assumptions-missing: No assumption checks
+    # - vague-sample: Vague sample descriptions
+    enabledRules:
+      - p-value-zero
+      - exact-p-threshold
+      - effect-size-missing
+      - confidence-interval-missing
+      - sample-size-missing
+      - multiple-comparisons
+      - significance-only
+      - power-analysis-missing
+      - assumptions-missing
+      - vague-sample
+    disabledRules: []
+
+  # Statistics AI analysis (LLM-powered)
+  statisticsAI:
+    enabled: true
+    defaultProvider: "anthropic"
+    minWords: 100
+
+# Comprehensive statistics configuration
+# All patterns, rules, and formulas are config-based
+statisticsConfig:
+  # Detection patterns - all regex patterns configurable
+  patterns:
+    pValue:
+      zero: "p\\s*=\\s*0\\.0{3,}"
+      exact: "p\\s*=\\s*0\\.05\\b"
+      reported: "p\\s*[<>=]\\s*0?\\.\\d+"
+
+    effectSizes:
+      cohensD: "cohen['']?s?\\s*d\\s*=\\s*-?[\\d.]+"
+      correlationR: "\\br\\s*=\\s*-?0?\\.\\d+"
+      etaSquared: "(?:eta|partial\\s+eta)\\s*(?:squared|²|2)?\\s*=\\s*0?\\.\\d+"
+      omegaSquared: "omega\\s*(?:squared|²|2)?\\s*=\\s*0?\\.\\d+"
+      hedgesG: "hedges['']?\\s*g\\s*=\\s*-?[\\d.]+"
+      oddsRatio: "(?:odds\\s+ratio|OR)\\s*=\\s*[\\d.]+"
+      riskRatio: "(?:risk\\s+ratio|RR|relative\\s+risk)\\s*=\\s*[\\d.]+"
+      cramersV: "cram[ée]r['']?s?\\s*v\\s*=\\s*0?\\.\\d+"
+      phi: "\\bphi\\s*=\\s*0?\\.\\d+|φ\\s*=\\s*0?\\.\\d+"
+      rSquared: "R²?\\s*=\\s*0?\\.\\d+"
+
+    sampleSize:
+      nEquals: "\\bn\\s*=\\s*(\\d+)"
+      sampleOf: "sample\\s+(?:size|of)\\s+(\\d+)"
+      participants: "(\\d+)\\s+participants"
+      subjects: "(\\d+)\\s+subjects"
+      respondents: "(\\d+)\\s+respondents"
+
+    confidenceInterval:
+      ciValue: "\\d+%?\\s*CI\\s*[=:]?\\s*\\[?[\\d.,\\s\\-–]+\\]?"
+      ciMention: "confidence\\s+interval"
+
+    tests:
+      tTest: "\\bt-test"
+      pairedTTest: "paired\\s+t-test"
+      independentTTest: "independent\\s+(?:samples?\\s+)?t-test"
+      anova: "\\bANOVA\\b"
+      manova: "\\bMANOVA\\b"
+      ancova: "\\bANCOVA\\b"
+      repeatedMeasuresAnova: "repeated\\s+measures\\s+ANOVA"
+      chiSquare: "chi-?square|χ²"
+      regression: "(?:linear|logistic|multiple|hierarchical)?\\s*regression"
+      correlation: "(?:pearson|spearman|kendall)?\\s*correlation"
+      mannWhitney: "mann-?whitney"
+      wilcoxon: "wilcoxon"
+      kruskalWallis: "kruskal-?wallis"
+      friedman: "friedman\\s+test"
+      fisherExact: "fisher['']?s?\\s+exact"
+
+    testStatistics:
+      fStatistic: "F\\s*\\(\\s*\\d+\\s*,\\s*\\d+\\s*\\)\\s*=\\s*[\\d.]+"
+      tStatistic: "t\\s*\\(\\s*\\d+\\s*\\)\\s*=\\s*-?[\\d.]+"
+      chiStatistic: "χ²\\s*\\(\\s*\\d+\\s*\\)\\s*=\\s*[\\d.]+"
+      zStatistic: "\\bz\\s*=\\s*-?[\\d.]+"
+      uStatistic: "U\\s*=\\s*[\\d.]+"
+      wStatistic: "W\\s*=\\s*[\\d.]+"
+
+    assumptions:
+      normalityTest: "(?:shapiro-wilk|kolmogorov-smirnov|normality\\s+test|normal\\s+distribution)"
+      homogeneity: "(?:levene|homogeneity\\s+of\\s+variance|homoscedasticity)"
+      sphericity: "(?:mauchly|sphericity)"
+      independence: "independence\\s+(?:assumption|of\\s+observations)"
+      linearity: "linearity\\s+assumption"
+
+    corrections:
+      bonferroni: "bonferroni"
+      tukeyHSD: "tukey(?:'s)?\\s*(?:HSD)?"
+      holm: "holm(?:'s)?\\s+(?:correction|method)"
+      fdr: "(?:FDR|false\\s+discovery\\s+rate)\\s+correction"
+      greenhouse: "greenhouse-geisser"
+
+    powerAnalysis:
+      powerAnalysis: "(?:a\\s+priori\\s+)?power\\s+analysis"
+      statisticalPower: "statistical\\s+power"
+      gPower: "G\\*?Power"
+      effectSizeMention: "effect\\s+size"
+
+    studyDesign:
+      randomization: "random(?:ized?|ization|ly\\s+(?:assigned|allocated))"
+      blinding: "(?:single|double|triple)[- ]blind"
+      placebo: "placebo[- ]controlled"
+      controlGroup: "control\\s+group"
+      inclusionCriteria: "inclusion\\s+criteria"
+      exclusionCriteria: "exclusion\\s+criteria"
+      allocationConcealment: "allocation\\s+conceal"
+      confounder: "confound(?:er|ing)"
+      samplingMethod: "(?:convenience|random|stratified|purposive|snowball)\\s+sampl"
+      responseRate: "response\\s+rate"
+      missingData: "missing\\s+(?:data|values)"
+
+    qualitative:
+      saturation: "(?:data|theoretical)\\s+saturation"
+      triangulation: "triangulat"
+      reflexivity: "reflexiv"
+      memberChecking: "member\\s+check"
+      codingProcess: "(?:open|axial|selective)\\s+cod|thematic\\s+analysis"
+      auditTrail: "audit\\s+trail"
+      interRaterReliability: "inter-?rater\\s+(?:reliability|agreement)"
+
+    robustness:
+      sensitivityAnalysis: "sensitivity\\s+analysis"
+      bootstrapping: "bootstrap(?:ping|ped)?"
+      crossValidation: "cross[- ]validation"
+      leaveOneOut: "leave[- ]one[- ]out"
+      jackknife: "jackknife"
+      robustnessCheck: "robustness\\s+check"
+
+  # Study type detection patterns
+  studyTypeDetection:
+    experimental:
+      - "randomi[zs]ed"
+      - "experiment(?:al)?"
+      - "\\bRCT\\b"
+      - "controlled\\s+trial"
+      - "intervention\\s+(?:study|group)"
+    observational:
+      - "survey"
+      - "cohort\\s+study"
+      - "cross-sectional"
+      - "case-control"
+      - "retrospective"
+      - "prospective"
+      - "longitudinal"
+      - "observational"
+    qualitative:
+      - "interview"
+      - "focus\\s+group"
+      - "ethnograph"
+      - "grounded\\s+theory"
+      - "phenomenolog"
+      - "thematic\\s+analysis"
+      - "\\bqualitative\\b"
+      - "narrative\\s+(?:analysis|inquiry)"
+
+  # Test requirements - what each test needs
+  testRequirements:
+    t-test:
+      dataType: "continuous"
+      assumptions:
+        - "normality"
+        - "homogeneity of variance"
+      requiredReporting:
+        - "t statistic with df"
+        - "p-value"
+        - "effect size (Cohen's d)"
+      appropriateFor:
+        - "comparing two group means"
+      notAppropriateFor:
+        - "more than two groups"
+        - "severely non-normal data"
+      alternativeTests:
+        - "Mann-Whitney U"
+        - "Wilcoxon signed-rank"
+
+    anova:
+      dataType: "continuous"
+      assumptions:
+        - "normality"
+        - "homogeneity of variance"
+        - "independence"
+      requiredReporting:
+        - "F statistic with df"
+        - "p-value"
+        - "effect size (η² or ω²)"
+        - "post-hoc tests if significant"
+      postHoc:
+        - "Tukey HSD"
+        - "Bonferroni"
+        - "Scheffé"
+        - "Games-Howell"
+      alternativeTests:
+        - "Kruskal-Wallis"
+        - "Welch's ANOVA"
+
+    chi-square:
+      dataType: "categorical"
+      assumptions:
+        - "expected frequency >= 5"
+        - "independence"
+      requiredReporting:
+        - "χ² statistic with df"
+        - "p-value"
+        - "effect size (Cramér's V or φ)"
+      alternativeTests:
+        - "Fisher's exact test"
+
+    regression:
+      dataType: "continuous"
+      assumptions:
+        - "linearity"
+        - "normality of residuals"
+        - "homoscedasticity"
+        - "no multicollinearity"
+      requiredReporting:
+        - "R² and adjusted R²"
+        - "coefficients with SE"
+        - "p-values for coefficients"
+        - "confidence intervals"
+      diagnostics:
+        - "VIF for multicollinearity"
+        - "residual plots"
+
+    correlation:
+      dataType: "continuous"
+      assumptions:
+        - "linearity (Pearson)"
+        - "normality (Pearson)"
+      requiredReporting:
+        - "correlation coefficient"
+        - "p-value"
+        - "confidence interval"
+      alternativeTests:
+        - "Spearman (ordinal/non-normal)"
+        - "Kendall (small samples)"
+
+  # Effect size interpretation thresholds (Cohen's conventions)
+  effectSizeThresholds:
+    cohensD:
+      small: 0.2
+      medium: 0.5
+      large: 0.8
+      description: "Standardized mean difference"
+
+    correlationR:
+      small: 0.1
+      medium: 0.3
+      large: 0.5
+      description: "Correlation coefficient"
+
+    etaSquared:
+      small: 0.01
+      medium: 0.06
+      large: 0.14
+      description: "Proportion of variance explained (ANOVA)"
+
+    omegaSquared:
+      small: 0.01
+      medium: 0.06
+      large: 0.14
+      description: "Proportion of variance explained (less biased)"
+
+    cramersV:
+      small: 0.1
+      medium: 0.3
+      large: 0.5
+      description: "Association strength for categorical data"
+
+    oddsRatio:
+      small: 1.5
+      medium: 2.5
+      large: 4.0
+      description: "Odds ratio magnitude (distance from 1.0)"
+
+    rSquared:
+      small: 0.02
+      medium: 0.13
+      large: 0.26
+      description: "Variance explained in regression"
+
+  # Sample size formulas and recommendations
+  sampleSizeFormulas:
+    twoGroupComparison:
+      formula: "n = 2 * ((z_α + z_β) / d)²"
+      description: "Independent samples t-test"
+      parameters:
+        z_alpha_0.05: 1.96
+        z_alpha_0.01: 2.58
+        z_beta_0.80: 0.84
+        z_beta_0.90: 1.28
+      minimumRecommended:
+        small_effect: 393
+        medium_effect: 64
+        large_effect: 26
+
+    pairedComparison:
+      formula: "n = ((z_α + z_β) / d)²"
+      description: "Paired samples t-test"
+      minimumRecommended:
+        small_effect: 196
+        medium_effect: 33
+        large_effect: 14
+
+    correlation:
+      formula: "n = ((z_α + z_β) / z_r)² + 3"
+      description: "Correlation analysis"
+      minimumRecommended:
+        small_effect: 782
+        medium_effect: 84
+        large_effect: 28
+
+    chiSquare:
+      formula: "n = (z_α + z_β)² / w²"
+      description: "Chi-square test"
+      minimumRecommended:
+        small_effect: 785
+        medium_effect: 87
+        large_effect: 31
+
+    oneWayAnova:
+      formula: "n = (k * (z_α + z_β)²) / f²"
+      description: "One-way ANOVA (per group)"
+      minimumRecommended:
+        small_effect: 322
+        medium_effect: 52
+        large_effect: 21
+
+    regression:
+      formula: "n = (8 / f²) + (k - 1)"
+      description: "Multiple regression"
+      minimumRecommended:
+        small_effect: 395
+        medium_effect: 67
+        large_effect: 30
+
+  # Study design checklists
+  studyDesignChecklist:
+    experimental:
+      - id: "randomization"
+        label: "Randomization method described"
+        patternRef: "studyDesign.randomization"
+        severity: "must-fix"
+      - id: "blinding"
+        label: "Blinding status stated"
+        patternRef: "studyDesign.blinding"
+        severity: "should-fix"
+      - id: "control-group"
+        label: "Control group defined"
+        patternRef: "studyDesign.controlGroup"
+        severity: "must-fix"
+      - id: "allocation-concealment"
+        label: "Allocation concealment described"
+        patternRef: "studyDesign.allocationConcealment"
+        severity: "should-fix"
+      - id: "power-analysis"
+        label: "Sample size justified with power analysis"
+        patternRef: "powerAnalysis.powerAnalysis"
+        severity: "should-fix"
+
+    observational:
+      - id: "selection-criteria"
+        label: "Inclusion/exclusion criteria stated"
+        patternRefs:
+          - "studyDesign.inclusionCriteria"
+          - "studyDesign.exclusionCriteria"
+        severity: "must-fix"
+      - id: "confounders"
+        label: "Confounders identified and addressed"
+        patternRef: "studyDesign.confounder"
+        severity: "should-fix"
+      - id: "sampling-method"
+        label: "Sampling method described"
+        patternRef: "studyDesign.samplingMethod"
+        severity: "should-fix"
+      - id: "response-rate"
+        label: "Response rate reported (if survey)"
+        patternRef: "studyDesign.responseRate"
+        severity: "consider"
+      - id: "missing-data"
+        label: "Missing data handling described"
+        patternRef: "studyDesign.missingData"
+        severity: "should-fix"
+
+    qualitative:
+      - id: "saturation"
+        label: "Data saturation addressed"
+        patternRef: "qualitative.saturation"
+        severity: "should-fix"
+      - id: "triangulation"
+        label: "Triangulation method described"
+        patternRef: "qualitative.triangulation"
+        severity: "consider"
+      - id: "reflexivity"
+        label: "Researcher reflexivity addressed"
+        patternRef: "qualitative.reflexivity"
+        severity: "consider"
+      - id: "member-checking"
+        label: "Member checking performed"
+        patternRef: "qualitative.memberChecking"
+        severity: "consider"
+      - id: "coding-process"
+        label: "Coding process described"
+        patternRef: "qualitative.codingProcess"
+        severity: "must-fix"
+      - id: "audit-trail"
+        label: "Audit trail maintained"
+        patternRef: "qualitative.auditTrail"
+        severity: "consider"
+      - id: "inter-rater"
+        label: "Inter-rater reliability reported"
+        patternRef: "qualitative.interRaterReliability"
+        severity: "should-fix"
+
+  # Validation rules (config-based)
+  validationRules:
+    - id: "p-value-zero"
+      name: "P-value Zero Error"
+      description: "P-values reported as exactly zero"
+      severity: "must-fix"
+      condition:
+        matchPattern: "pValue.zero"
+      suggestion: "Report as p < 0.001"
+
+    - id: "exact-p-threshold"
+      name: "Exact P-value Threshold"
+      description: "P-value exactly at 0.05 threshold"
+      severity: "consider"
+      condition:
+        matchPattern: "pValue.exact"
+      suggestion: "Report exact p-values when possible"
+
+    - id: "effect-size-missing"
+      name: "Missing Effect Size"
+      description: "Statistical test without effect size"
+      severity: "should-fix"
+      condition:
+        hasAnyPattern:
+          - "tests.tTest"
+          - "tests.anova"
+          - "tests.chiSquare"
+          - "tests.correlation"
+        missingAllPatterns:
+          - "effectSizes.cohensD"
+          - "effectSizes.correlationR"
+          - "effectSizes.etaSquared"
+          - "effectSizes.cramersV"
+          - "effectSizes.rSquared"
+      suggestion: "Report effect size (Cohen's d, η², r, etc.)"
+
+    - id: "ci-missing"
+      name: "Missing Confidence Interval"
+      description: "Effect sizes without confidence intervals"
+      severity: "consider"
+      condition:
+        hasAnyPattern:
+          - "effectSizes.cohensD"
+          - "effectSizes.oddsRatio"
+          - "effectSizes.riskRatio"
+        missingAllPatterns:
+          - "confidenceInterval.ciValue"
+          - "confidenceInterval.ciMention"
+      suggestion: "Report 95% confidence intervals"
+
+    - id: "sample-size-missing"
+      name: "Missing Sample Size"
+      description: "Statistical analysis without sample size"
+      severity: "must-fix"
+      condition:
+        hasAnyPattern:
+          - "tests.tTest"
+          - "tests.anova"
+          - "tests.chiSquare"
+          - "tests.regression"
+        missingAllPatterns:
+          - "sampleSize.nEquals"
+          - "sampleSize.participants"
+          - "sampleSize.subjects"
+      suggestion: "Clearly state sample size (n = X)"
+
+    - id: "multiple-comparisons"
+      name: "Multiple Comparisons"
+      description: "Multiple tests without correction"
+      severity: "should-fix"
+      condition:
+        type: "count-check"
+        pattern: "pValue.reported"
+        threshold: 5
+        missingAllPatterns:
+          - "corrections.bonferroni"
+          - "corrections.holm"
+          - "corrections.fdr"
+          - "corrections.tukeyHSD"
+      suggestion: "Apply correction for multiple comparisons"
+
+    - id: "significance-only"
+      name: "Significance Only"
+      description: "P-values without test statistics"
+      severity: "should-fix"
+      condition:
+        type: "count-check"
+        pattern: "pValue.reported"
+        threshold: 3
+        missingAllPatterns:
+          - "testStatistics.fStatistic"
+          - "testStatistics.tStatistic"
+          - "testStatistics.chiStatistic"
+      suggestion: "Report full test statistics: F(df), t(df), χ²(df)"
+
+    - id: "power-analysis-missing"
+      name: "Power Analysis Missing"
+      description: "Sample size without power justification"
+      severity: "should-fix"
+      condition:
+        hasAnyPattern:
+          - "sampleSize.nEquals"
+          - "sampleSize.participants"
+        missingAllPatterns:
+          - "powerAnalysis.powerAnalysis"
+          - "powerAnalysis.gPower"
+      sections:
+        - "methodology"
+      suggestion: "Include a priori power analysis"
+
+    - id: "assumptions-missing"
+      name: "Assumptions Not Checked"
+      description: "Parametric tests without assumption verification"
+      severity: "consider"
+      condition:
+        hasAnyPattern:
+          - "tests.tTest"
+          - "tests.anova"
+          - "tests.regression"
+        missingAllPatterns:
+          - "assumptions.normalityTest"
+          - "assumptions.homogeneity"
+      sections:
+        - "methodology"
+        - "results"
+      suggestion: "Report assumption checks (normality, homogeneity)"
+
+    - id: "no-robustness"
+      name: "No Robustness Analysis"
+      description: "Results without sensitivity checks"
+      severity: "consider"
+      condition:
+        hasAnyPattern:
+          - "pValue.reported"
+        missingAllPatterns:
+          - "robustness.sensitivityAnalysis"
+          - "robustness.bootstrapping"
+          - "robustness.robustnessCheck"
+      sections:
+        - "results"
+        - "discussion"
+      suggestion: "Consider sensitivity or robustness analysis"
+
+    - id: "vague-sample"
+      name: "Vague Sample Description"
+      description: "Sample described with vague terms"
+      severity: "should-fix"
+      condition:
+        matchPatterns:
+          - "many\\s+(?:participants|subjects|respondents)"
+          - "several\\s+(?:participants|subjects|respondents)"
+          - "a\\s+(?:large|small)\\s+(?:sample|group)"
+      suggestion: "Use specific numbers"
+
+    - id: "underpowered-study"
+      name: "Potentially Underpowered"
+      description: "Sample size below recommended minimum"
+      severity: "should-fix"
+      condition:
+        type: "sample-size-check"
+      suggestion: "Sample may be insufficient for medium effects"
