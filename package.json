@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "bun run css:build && bun run server.ts",
+    "build": "bun run css:build && bun run build.ts",
+    "css:build": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/index.css",
+    "css:watch": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/index.css --watch",
+    "preview": "bun run build && bunx serve dist",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit && bun test",
-    "bundle": "vite build",
-    "clean": "rm -rf dist node_modules/.vite"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -21,14 +22,11 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.0.3",
-    "tailwindcss": "^4.0.0-beta.9",
-    "@tailwindcss/vite": "^4.0.0-beta.9",
     "typescript": "^5.7.2",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
-    "@modyfi/vite-plugin-yaml": "^1.1.0",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "tailwindcss": "^4.0.0-beta.9",
+    "@tailwindcss/cli": "^4.0.0-beta.9"
   }
 }
