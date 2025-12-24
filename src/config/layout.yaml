@@ -1,0 +1,52 @@
+version: '1.0'
+
+header:
+  title: PaperLint
+  subtitle: Academic Writing Analysis
+  icon: FileText
+  showRefresh: true
+  stats:
+    - id: overallScore
+      label: Overall Score
+      color: success
+    - id: issueCount
+      label: Issues
+      color: warning
+
+defaultTab: input
+
+tabs:
+  - id: input
+    label: Input
+    icon: Upload
+    sections:
+      - id: paper-input
+        title: ''
+        component: PaperInput
+
+  - id: review
+    label: Review
+    icon: Search
+    sections:
+      - id: score-sidebar
+        title: ''
+        component: ScoreSidebar
+      - id: section-review
+        title: ''
+        component: SectionReviewPanel
+
+  - id: read
+    label: Read
+    icon: BookOpen
+    sections:
+      - id: paper-reader
+        title: ''
+        component: PaperReader
+
+  - id: report
+    label: Report
+    icon: FileDown
+    sections:
+      - id: report-generator
+        title: ''
+        component: ReportGenerator

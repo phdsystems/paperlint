@@ -15,10 +15,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@engineeringlabs/frontboot": "/home/adentic/frontboot",
+    "lucide-react": "^0.562.0",
+    "openai": "^4.76.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "openai": "^4.76.0",
-    "@anthropic-ai/sdk": "^0.32.1",
     "yaml": "^2.6.1"
   },
   "devDependencies": {

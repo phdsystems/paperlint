@@ -1,4 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
+import { TabbedPanel, FadeIn } from '@engineeringlabs/frontboot'
+import type { TabbedPanelConfig, TabbedPanelCallbacks, PanelTab } from '@engineeringlabs/frontboot'
+import { ClipboardList, AlertCircle, BarChart3, FileEdit, Loader2, Sparkles } from 'lucide-react'
 import type { Section, SectionType, AIAnalysisResult, Issue } from '../types'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card'
 import { Button } from './ui/Button'
@@ -21,6 +24,8 @@ interface SectionReviewProps {
   calculateScore: (section: Section) => number
 }
 
+type TabId = 'checklist' | 'issues' | 'analysis' | 'content'
+
 export function SectionReview({
   section,
   fullPaperContent,
@@ -34,7 +39,7 @@ export function SectionReview({
 }: SectionReviewProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'checklist' | 'issues' | 'analysis' | 'content'>('checklist')
+  const [activeTab, setActiveTab] = useState<TabId>('checklist')
   const [aiProvider, setAiProvider] = useState<'openai' | 'anthropic'>('anthropic')
 
   const aiConfig = isAIConfigured()
@@ -65,12 +70,40 @@ export function SectionReview({
 
   const score = calculateScore(section)
 
-  const tabs = [
-    { id: 'checklist', label: 'Checklist', count: section.checklist.length },
-    { id: 'issues', label: 'Issues', count: section.issues.length },
-    { id: 'analysis', label: 'Analysis', count: null },
-    { id: 'content', label: 'Content', count: null },
-  ] as const
+  // TabbedPanel configuration
+  const tabs: PanelTab[] = useMemo(() => [
+    {
+      id: 'checklist',
+      label: 'Checklist',
+      icon: <ClipboardList size={14} />,
+      badge: section.checklist.length
+    },
+    {
+      id: 'issues',
+      label: 'Issues',
+      icon: <AlertCircle size={14} />,
+      badge: section.issues.length
+    },
+    {
+      id: 'analysis',
+      label: 'Analysis',
+      icon: <BarChart3 size={14} />
+    },
+    {
+      id: 'content',
+      label: 'Content',
+      icon: <FileEdit size={14} />
+    },
+  ], [section.checklist.length, section.issues.length])
+
+  const panelConfig: TabbedPanelConfig = {
+    tabs,
+    position: 'top',
+  }
+
+  const panelCallbacks: TabbedPanelCallbacks = {
+    onTabChange: (tabId) => setActiveTab(tabId as TabId),
+  }
 
   return (
     <Card>
@@ -81,140 +114,91 @@ export function SectionReview({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 mb-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              {tab.label}
-              {tab.count !== null && (
-                <span
-                  className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
-                    activeTab === tab.id
-                      ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                      : 'bg-gray-100 text-gray-500 dark:bg-gray-700'
-                  }`}
-                >
-                  {tab.count}
-                </span>
+        <TabbedPanel
+          config={panelConfig}
+          callbacks={panelCallbacks}
+          activeTabId={activeTab}
+        >
+          <div className="min-h-[300px] pt-4">
+            <FadeIn key={activeTab}>
+              {activeTab === 'checklist' && (
+                <Checklist items={section.checklist} onToggle={onChecklistToggle} />
               )}
-            </button>
-          ))}
-        </div>
 
-        <div className="min-h-[300px]">
-          {activeTab === 'checklist' && (
-            <Checklist items={section.checklist} onToggle={onChecklistToggle} />
-          )}
+              {activeTab === 'issues' && (
+                <IssueList
+                  issues={section.issues}
+                  onRemove={onIssueRemove}
+                  onUpdate={onIssueUpdate}
+                />
+              )}
 
-          {activeTab === 'issues' && (
-            <IssueList
-              issues={section.issues}
-              onRemove={onIssueRemove}
-              onUpdate={onIssueUpdate}
-            />
-          )}
+              {activeTab === 'analysis' && (
+                <TextAnalysis
+                  section={section}
+                  fullPaperContent={fullPaperContent}
+                  onAddIssues={onAddIssues}
+                />
+              )}
 
-          {activeTab === 'analysis' && (
-            <TextAnalysis
-              section={section}
-              fullPaperContent={fullPaperContent}
-              onAddIssues={onAddIssues}
-            />
-          )}
+              {activeTab === 'content' && (
+                <div className="space-y-4">
+                  <Textarea
+                    value={section.content}
+                    onChange={(e) => onContentChange(e.target.value)}
+                    placeholder={`Paste or edit ${section.name} content here...`}
+                    className="min-h-[250px]"
+                  />
 
-          {activeTab === 'content' && (
-            <div className="space-y-4">
-              <Textarea
-                value={section.content}
-                onChange={(e) => onContentChange(e.target.value)}
-                placeholder={`Paste or edit ${section.name} content here...`}
-                className="min-h-[250px]"
-              />
-
-              {hasAI && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Provider:</span>
-                    <select
-                      value={aiProvider}
-                      onChange={(e) => setAiProvider(e.target.value as 'openai' | 'anthropic')}
-                      className="text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1"
-                      disabled={isAnalyzing}
-                    >
-                      {aiConfig.anthropic && (
-                        <option value="anthropic">Claude (Anthropic)</option>
-                      )}
-                      {aiConfig.openai && <option value="openai">GPT-4 (OpenAI)</option>}
-                    </select>
-                  </div>
-                  <Button
-                    onClick={handleAnalyze}
-                    disabled={isAnalyzing || !section.content.trim()}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
+                  {hasAI && (
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-[var(--fb-text-muted)]">Provider:</span>
+                        <select
+                          value={aiProvider}
+                          onChange={(e) => setAiProvider(e.target.value as 'openai' | 'anthropic')}
+                          className="text-sm rounded border border-[var(--fb-border)] bg-[var(--fb-surface)] text-[var(--fb-text)] px-2 py-1"
+                          disabled={isAnalyzing}
                         >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-4 h-4 mr-1.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                          />
-                        </svg>
-                        Analyze with AI
-                      </>
-                    )}
-                  </Button>
+                          {aiConfig.anthropic && (
+                            <option value="anthropic">Claude (Anthropic)</option>
+                          )}
+                          {aiConfig.openai && <option value="openai">GPT-4 (OpenAI)</option>}
+                        </select>
+                      </div>
+                      <Button
+                        onClick={handleAnalyze}
+                        disabled={isAnalyzing || !section.content.trim()}
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-1.5" />
+                            Analyze with AI
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
+                  {!hasAI && (
+                    <p className="text-sm text-[var(--fb-text-muted)]">
+                      Configure VITE_OPENAI_API_KEY or VITE_ANTHROPIC_API_KEY for AI analysis
+                    </p>
+                  )}
+
+                  {analysisError && (
+                    <p className="text-sm text-[var(--fb-error)]">{analysisError}</p>
+                  )}
                 </div>
               )}
-
-              {!hasAI && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Configure VITE_OPENAI_API_KEY or VITE_ANTHROPIC_API_KEY for AI analysis
-                </p>
-              )}
-
-              {analysisError && (
-                <p className="text-sm text-red-600 dark:text-red-400">{analysisError}</p>
-              )}
-            </div>
-          )}
-        </div>
+            </FadeIn>
+          </div>
+        </TabbedPanel>
       </CardContent>
     </Card>
   )

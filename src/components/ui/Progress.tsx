@@ -12,10 +12,10 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
 
     const getColor = () => {
-      if (percentage >= 80) return 'bg-green-500'
-      if (percentage >= 60) return 'bg-blue-500'
-      if (percentage >= 40) return 'bg-yellow-500'
-      return 'bg-red-500'
+      if (percentage >= 80) return 'bg-[var(--fb-success)]'
+      if (percentage >= 60) return 'bg-[var(--fb-accent)]'
+      if (percentage >= 40) return 'bg-[var(--fb-warning)]'
+      return 'bg-[var(--fb-error)]'
     }
 
     const sizes = {
@@ -26,14 +26,14 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
 
     return (
       <div ref={ref} className={`w-full ${className}`} {...props}>
-        <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${sizes[size]}`}>
+        <div className={`w-full bg-[var(--fb-surface-hover)] rounded-full overflow-hidden ${sizes[size]}`}>
           <div
             className={`${getColor()} ${sizes[size]} rounded-full transition-all duration-300`}
             style={{ width: `${percentage}%` }}
           />
         </div>
         {showLabel && (
-          <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 text-right">
+          <div className="mt-1 text-sm text-[var(--fb-text-muted)] text-right">
             {value.toFixed(1)} / {max}
           </div>
         )}
